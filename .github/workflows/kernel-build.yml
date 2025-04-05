@@ -1,77 +1,85 @@
-# File: .github/workflows/kernel-build-arm64.yml
-
-name: Kernel Build (ARM64)
+name: Build Kernel msm8916 (ARM64)
 
 on:
   workflow_dispatch:
 
 jobs:
-  build-kernel:
+  build:
     runs-on: ubuntu-22.04
-    env:
-      CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
-      CCACHE_NOHASHDIR: "true"
-      CCACHE_HARDLINK: "true"
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Prepare Environment
+      - name: Checkout repository (optional)
+        uses: actions/checkout@v4
+
+      - name: Load environment variables from config.env
         run: |
           grep -v -E "^#|^\n" config.env | sed 's/ #.*//; s/#.*//' >> $GITHUB_ENV
 
-      - name: Remove unused packages
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
-          android: false
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: false
-
-      - name: Set swap to 10G
-        uses: pierotofy/set-swap-space@master
-        with:
-          swap-size-gb: 10
-
-      - name: Setup kernel build environment
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
             build-essential bc bison flex libssl-dev libelf-dev \
-            ccache python3 dwarves fakeroot kernel-package git automake \
-            lzop gperf zip curl zlib1g-dev g++-multilib libxml2-utils \
-            bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools \
-            pngcrush schedtool dpkg-dev liblz4-tool make optipng maven\
-            libssl-dev pwgen libswitch-perl policycoreutils minicom \
-            libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 \
-            lib32ncurses5-dev libx11-dev lib32z-dev libgl1-mesa-dev \
-            xsltproc unzip device-tree-compiler python2 python3 binutils-aarch64-linux-gnu
+            ccache python3 fakeroot kernel-package git \
+            libncurses-dev libudev-dev libpci-dev libiberty-dev \
+            liblz4-tool libglib2.0-dev libpixman-1-dev \
+            device-tree-compiler \
+            curl xz-utils
 
-      - name: Download ARM64 toolchain (aarch64)
+      - name: Download and Extract Linaro Toolchain from CUSTOM_COMPILER
         run: |
+          set -e
           mkdir -p ~/toolchains
           cd ~/toolchains
-          wget https://releases.linaro.org/components/toolchain/binaries/latest-10/aarch64-linux-gnu/gcc-linaro-10.3.1-2021.07-x86_64_aarch64-linux-gnu.tar.xz
-          tar -xf gcc-linaro-10.3.1-2021.07-x86_64_aarch64-linux-gnu.tar.xz
-          echo "CROSS_COMPILE=$HOME/toolchains/gcc-linaro-10.3.1-2021.07-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-" >> $GITHUB_ENV
 
-      - name: Download kernel source
+          # Validasi CUSTOM_COMPILER
+          if [ -z "$CUSTOM_COMPILER" ]; then
+            echo "❌ ERROR: CUSTOM_COMPILER is not set in config.env"
+            exit 1
+          fi
+
+          if ! echo "$CUSTOM_COMPILER" | grep -qE '^https?://.*\.tar\.xz$'; then
+            echo "❌ ERROR: CUSTOM_COMPILER must be a valid .tar.xz URL"
+            exit 1
+          fi
+
+          TOOLCHAIN_NAME=$(basename "$CUSTOM_COMPILER" .tar.xz)
+          wget "$CUSTOM_COMPILER"
+          tar -xf "$TOOLCHAIN_NAME.tar.xz"
+          echo "CROSS_COMPILE=$HOME/toolchains/$TOOLCHAIN_NAME/bin/aarch64-linux-gnu-" >> $GITHUB_ENV
+          echo "PATH=$HOME/toolchains/$TOOLCHAIN_NAME/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Clone Kernel Source
         run: |
-          cd ~
-          git clone --recursive ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_SOURCE_BRANCH }} android-kernel --depth=1
+          set -e
+          git clone "$KERNEL_SOURCE" -b "$KERNEL_SOURCE_BRANCH" --depth=1 linux
+          cd linux
+          echo "KERNEL_DIR=$PWD" >> $GITHUB_ENV
 
-      - name: Compile ARM64 Kernel + Build .deb Package
+      - name: Set Kernel ARCH
         run: |
-          cd ~/android-kernel
-          export PATH=$(dirname $CROSS_COMPILE):$PATH
-          export ARCH=arm64
-          make ARCH=arm64 defconfig
-          make ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILE} -j$(nproc)
-          make ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILE} -j$(nproc) deb-pkg
+          echo "ARCH=$KERNEL_ARCH" >> $GITHUB_ENV
 
-      - name: Upload kernel .deb packages
+      - name: Build Kernel and Package
+        run: |
+          set -e
+          cd $KERNEL_DIR
+          make "$KERNEL_DEFCONFIG"
+          make -j$(nproc)
+          make deb-pkg -j$(nproc)
+
+      - name: Append DTB to Kernel Image
+        run: |
+          set -e
+          cd $KERNEL_DIR
+          cat arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/msm8916-wingtech-wt88047.dtb > "$KERNEL_IMAGE_NAME"
+
+      - name: Upload kernel artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: kernel-deb-packages
-          path: ~/*.deb
+          name: msm8916-kernel-artifacts
+          path: |
+            ${{ env.KERNEL_DIR }}/arch/arm64/boot/Image.gz
+            ${{ env.KERNEL_DIR }}/arch/arm64/boot/dts/qcom/msm8916-wingtech-wt88047.dtb
+            ${{ env.KERNEL_DIR }}/${{ env.KERNEL_IMAGE_NAME }}
+            ../*.deb
