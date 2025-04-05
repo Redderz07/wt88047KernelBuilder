@@ -21,33 +21,12 @@ jobs:
           sudo apt-get install -y \
             build-essential bc bison flex libssl-dev libelf-dev \
             ccache python3 fakeroot git \
-            libncurses-dev libudev-dev libpci-dev libiberty-dev \
-            liblz4-tool libglib2.0-dev libpixman-1-dev \
-            device-tree-compiler \
-            curl xz-utils
-
-      - name: Download and Extract Linaro Toolchain from CUSTOM_COMPILER
-        run: |
-          set -e
-          mkdir -p ~/toolchains
-          cd ~/toolchains
-
-          # Validasi CUSTOM_COMPILER
-          if [ -z "$CUSTOM_COMPILER" ]; then
-            echo "❌ ERROR: CUSTOM_COMPILER is not set in config.env"
-            exit 1
-          fi
-
-          if ! echo "$CUSTOM_COMPILER" | grep -qE '^https?://.*\.tar\.xz$'; then
-            echo "❌ ERROR: CUSTOM_COMPILER must be a valid .tar.xz URL"
-            exit 1
-          fi
-
-          TOOLCHAIN_NAME=$(basename "$CUSTOM_COMPILER" .tar.xz)
-          wget "$CUSTOM_COMPILER"
-          tar -xf "$TOOLCHAIN_NAME.tar.xz"
-          echo "CROSS_COMPILE=$HOME/toolchains/$TOOLCHAIN_NAME/bin/aarch64-linux-gnu-" >> $GITHUB_ENV
-          echo "PATH=$HOME/toolchains/$TOOLCHAIN_NAME/bin:$PATH" >> $GITHUB_ENV
+            libncurses-dev device-tree-compiler \
+            gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+            curl xz-utils debhelper-compat libssl-dev
+  
+      - name: Set toolchain path
+        run: echo "CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
 
       - name: Clone Kernel Source
         run: |
