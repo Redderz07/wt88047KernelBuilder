@@ -75,7 +75,7 @@ jobs:
           cat arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/msm8916-wingtech-wt88047.dtb > "$KERNEL_IMAGE_NAME"
 
       - name: Upload kernel artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: msm8916-kernel-artifacts
           path: |
