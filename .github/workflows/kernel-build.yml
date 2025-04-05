@@ -30,6 +30,7 @@ jobs:
 
       - name: Clone Kernel Source
         run: |
+          echo "HOME_DIR=$PWD" >> $GITHUB_ENV
           set -e
           git clone "$KERNEL_SOURCE" -b "$KERNEL_SOURCE_BRANCH" --depth=1 linux
           cd linux
@@ -61,4 +62,4 @@ jobs:
             ${{ env.KERNEL_DIR }}/arch/arm64/boot/Image.gz
             ${{ env.KERNEL_DIR }}/arch/arm64/boot/dts/qcom/msm8916-wingtech-wt88047.dtb
             ${{ env.KERNEL_DIR }}/${{ env.KERNEL_IMAGE_NAME }}
-            ../*.deb
+            ${{ env.HOME_DIR }}/*.deb
