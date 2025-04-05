@@ -17,13 +17,14 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo dpkg --add-architecture arm64
           sudo apt-get update
           sudo apt-get install -y \
             build-essential bc bison flex libssl-dev libelf-dev \
             ccache python3 fakeroot git \
             libncurses-dev device-tree-compiler \
             gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
-            curl xz-utils debhelper-compat libssl-dev
+            curl xz-utils debhelper-compat libssl-dev libssl-dev:arm64
   
       - name: Set toolchain path
         run: echo "CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
