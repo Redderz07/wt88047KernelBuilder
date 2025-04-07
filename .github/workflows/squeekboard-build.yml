@@ -15,7 +15,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y debhelper libglib2.0-dev libgnome-desktop-3-dev libinput-dev libpixman-1-dev libwayland-dev libxkbcommon-dev meson pkg-config wayland-protocols libwlroots-dev
+          sudo apt-get install -y debhelper libglib2.0-dev libgnome-desktop-3-dev libinput-dev libpixman-1-dev libwayland-dev libxkbcommon-dev meson pkg-config wayland-protocols libwlroots-dev devscripts libgtk-3-dev libglib2.0-dev libgdk-pixbuf2.0-dev libnotify-dev libsystemd-dev libpolkit-gobject-1-dev libgnome-desktop-3-dev libupower-glib-dev libsecret-1-dev
           
       - name: Clone Source
         run: |
