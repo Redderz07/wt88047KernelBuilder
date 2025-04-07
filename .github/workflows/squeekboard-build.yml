@@ -1,0 +1,36 @@
+
+name: Build squeekboard
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository (optional)
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y debhelper libglib2.0-dev libgnome-desktop-3-dev libinput-dev libpixman-1-dev libwayland-dev libxkbcommon-dev meson pkg-config wayland-protocols libwlroots-dev
+          
+      - name: Clone Source
+        run: |
+          echo "HOME_DIR=$PWD" >> $GITHUB_ENV
+          git clone https://gitlab.gnome.org/World/Phosh/squeekboard
+          cd squeekboard
+          echo "squeekboard_DIR=$PWD" >> $GITHUB_ENV
+          
+      - name: Build Kernel and Package
+        run: |
+          debuild -i -us -uc -b
+
+      - name: Upload kernel artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: squeekboard-artifacts
+          path: |
+            ${{ env.HOME_DIR }}/*.deb
