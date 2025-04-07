@@ -15,13 +15,13 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y debhelper libglib2.0-dev libgnome-desktop-3-dev libinput-dev libpixman-1-dev libwayland-dev libxkbcommon-dev meson pkg-config wayland-protocols libwlroots-dev devscripts libgtk-3-dev libglib2.0-dev libgdk-pixbuf2.0-dev libnotify-dev libsystemd-dev libpolkit-gobject-1-dev libgnome-desktop-3-dev libupower-glib-dev libsecret-1-dev
+          sudo apt-get install -y wget debhelper gsettings-desktop-schemas gi-docgen libgmobile-dev libgnome-desktop-3-dev libinput-dev libjson-glib-dev libpixman-1-dev libwayland-dev libxkbcommon-dev meson wayland-protocols libxcb1-dev libwlroots-dev xwayland libgirepository1.0-dev:native python3-docutils python3-jinja2 python3-pygments python3-toml python3-typogrify desktop-file-utils mutter-common xvfb xauth libwlroots-0.18-dev
           
       - name: Clone Source
         run: |
           echo "HOME_DIR=$PWD" >> $GITHUB_ENV
-          git clone https://gitlab.gnome.org/World/Phosh/phoc
-          cd phoc
+          wget https://gitlab.gnome.org/World/Phosh/phoc/-/archive/v0.46.0/phoc-v0.46.0.zip
+          cd phoc-v0.46.0
           echo "phoc_DIR=$PWD" >> $GITHUB_ENV
           
       - name: Build Kernel and Package
