@@ -1,7 +1,10 @@
 name: Build firmware-qcom-db410c
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
@@ -14,8 +17,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y mtools unzip python3 python3-pip
-        pip3 install pil-squasher
+        sudo apt-get install -y mtools unzip wget python3
 
     - name: Set variables
       run: |
@@ -31,6 +33,11 @@ jobs:
         wget https://releases.linaro.org/96boards/dragonboard410c/qualcomm/firmware/linux-board-support-package-r$PKGVER.zip
         unzip linux-board-support-package-r$PKGVER.zip
 
+    - name: Download pil-squasher.py
+      run: |
+        wget https://raw.githubusercontent.com/96boards/documentation/master/dragonboard/dragonboard410c/firmware-tools/pil-squasher.py -O pil-squasher.py
+        chmod +x pil-squasher.py
+
     - name: Extract modem files from NON-HLOS.bin
       run: |
         mcopy -i "$BUILDDIR/bootloaders-linux/NON-HLOS.bin" -p -v \
@@ -39,8 +46,8 @@ jobs:
     - name: Run pil-squasher
       run: |
         cd "$BUILDDIR"
-        pil-squasher modem.mbn modem.mdt
-        pil-squasher venus.mbn proprietary-linux/venus.mdt
+        python3 $GITHUB_WORKSPACE/pil-squasher.py modem.mbn modem.mdt
+        python3 $GITHUB_WORKSPACE/pil-squasher.py venus.mbn proprietary-linux/venus.mdt
 
     - name: Copy output files
       run: |
