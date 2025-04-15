@@ -21,12 +21,11 @@ jobs:
 
     - name: Set environment variables
       run: |
-        echo "HOME=$PWD" >> $GITHUB_ENV
         echo "PKGVER=1036.1" >> $GITHUB_ENV
         echo "PKGNAME=firmware-qcom-db410c" >> $GITHUB_ENV
         echo "SRCDIR=$HOME/src" >> $GITHUB_ENV
         echo "BUILDDIR=$HOME/src/linux-board-support-package-r1036.1" >> $GITHUB_ENV
-        mkdir src
+        mkdir $SRCDIR
 
     - name: Download firmware zip
       run: |
