@@ -1,0 +1,60 @@
+name: Build firmware-qcom-db410c
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mtools unzip python3 python3-pip
+        pip3 install pil-squasher
+
+    - name: Set variables
+      run: |
+        echo "PKGVER=1036.1" >> $GITHUB_ENV
+        echo "PKGNAME=firmware-qcom-db410c" >> $GITHUB_ENV
+        echo "SRCDIR=$HOME/src" >> $GITHUB_ENV
+        echo "BUILDDIR=$HOME/src/linux-board-support-package-r1036.1" >> $GITHUB_ENV
+        mkdir -p "$SRCDIR"
+
+    - name: Download firmware zip
+      run: |
+        cd $SRCDIR
+        wget https://releases.linaro.org/96boards/dragonboard410c/qualcomm/firmware/linux-board-support-package-r$PKGVER.zip
+        unzip linux-board-support-package-r$PKGVER.zip
+
+    - name: Extract modem files from NON-HLOS.bin
+      run: |
+        mcopy -i "$BUILDDIR/bootloaders-linux/NON-HLOS.bin" -p -v \
+          ::image/mba.mbn ::image/modem.* "$BUILDDIR"
+
+    - name: Run pil-squasher
+      run: |
+        cd "$BUILDDIR"
+        pil-squasher modem.mbn modem.mdt
+        pil-squasher venus.mbn proprietary-linux/venus.mdt
+
+    - name: Copy output files
+      run: |
+        mkdir -p output
+        cp "$BUILDDIR"/mba.mbn output/
+        cp "$BUILDDIR"/modem.mbn output/
+        cp "$BUILDDIR"/venus.mbn output/
+        cp "$BUILDDIR"/proprietary-linux/wlan/prima/WCNSS_qcom_wlan_nv.bin output/
+
+    - name: Upload firmware artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: db410c-firmware
+        path: output/
