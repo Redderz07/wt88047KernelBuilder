@@ -47,7 +47,7 @@ jobs:
           cd $KERNEL_DIR
           make "$KERNEL_DEFCONFIG"
           make -j$(nproc)
-          make deb-pkg -j$(nproc)
+          make pacman-pkg -j$(nproc)
 
       - name: Append DTB to Kernel Image
         run: |
@@ -63,4 +63,4 @@ jobs:
             ${{ env.KERNEL_DIR }}/arch/arm64/boot/Image.gz
             ${{ env.KERNEL_DIR }}/arch/arm64/boot/dts/qcom/msm8916-wingtech-wt88047.dtb
             ${{ env.KERNEL_DIR }}/${{ env.KERNEL_IMAGE_NAME }}
-            ${{ env.HOME_DIR }}/*.deb
+            ${{ env.HOME_DIR }}/*.pkg.tar.zst
