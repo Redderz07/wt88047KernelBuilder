@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository (optional)
@@ -23,7 +23,7 @@ jobs:
             ccache python3 fakeroot git base-devel \
             libncurses-dev device-tree-compiler xmlto \
             gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
-            curl xz-utils debhelper-compat libssl-dev kmod inetutils cpio perl
+            curl xz-utils debhelper-compat libssl-dev kmod cpio perl
   
       - name: Set toolchain path
         run: echo "CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
