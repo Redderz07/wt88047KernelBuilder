@@ -46,7 +46,7 @@ jobs:
           cd $KERNEL_DIR
           make "$KERNEL_DEFCONFIG"
           make -j$(nproc)
-          make pacman-pkg -j$(nproc)
+          make deb-pkg -j$(nproc)
 
       - name: Append DTB to Kernel Image
         run: |
