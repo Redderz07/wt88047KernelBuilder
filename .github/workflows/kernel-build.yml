@@ -17,8 +17,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get update -qqy
+          sudo apt-get upgrade -qqy
+          sudo apt-get install -qqy \
             build-essential bc bison flex libssl-dev libelf-dev \
             ccache python3 fakeroot git \
             libncurses-dev device-tree-compiler xmlto \
