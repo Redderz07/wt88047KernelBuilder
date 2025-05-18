@@ -15,13 +15,23 @@ jobs:
         run: |
           grep -v -E "^#|^\n" config.env | sed 's/ #.*//; s/#.*//' >> $GITHUB_ENV
 
+      - name: add arm64/armhf repo 
+        run: |
+          sudo cp /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ports.sources
+          sudo sed -i.bak -e 's/^\(Suites:.*\)$/\1\nArchitectures: amd64 i386/' /etc/apt/sources.list.d/ubuntu.sources
+          sudo sed -i.bak -e 's/^URIs:.*$/URIs: http:\/\/ports.ubuntu.com\/ubuntu-ports\//' /etc/apt/sources.list.d/ports.sources
+          sudo sed -i -e 's/^\(Suites:.*\)$/\1\nArchitectures: armhf arm64/' /etc/apt/sources.list.d/ports.sources
+          cat /etc/apt/sources.list.d/ports.sources
+
       - name: Install dependencies
         run: |
+          sudo dpkg --add-architecture armhf
+          sudo dpkg --add-architecture arm64
           sudo apt-get update -qqy
           sudo apt-get upgrade -qqy
           sudo apt-get install -qqy \
             build-essential bc bison flex libssl-dev libelf-dev \
-            ccache python3 fakeroot git \
+            ccache python3 fakeroot git libssl-dev:armhf libssl-dev:arm64\
             libncurses-dev device-tree-compiler xmlto \
             gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
             curl xz-utils debhelper-compat libssl-dev kmod cpio perl
