@@ -37,11 +37,17 @@ jobs:
         run: |
           echo "ARCH=$KERNEL_ARCH" >> $GITHUB_ENV
 
-      - name: Build kernel package with makepkg
+      - name: Create non-root user for makepkg
+        run: |
+          useradd -m builduser
+          echo "builduser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+          chown -R builduser:builduser $GITHUB_WORKSPACE
+
+      - name: Build kernel package with makepkg (non-root)
         run: |
           cd $KERNEL_DIR
-          cp $GITHUB_WORKSPACE/PKGBUILD .
-          makepkg -s --noconfirm --skippgpcheck
+          cp $GITHUB_WORKSPACE/kernel/PKGBUILD .
+          sudo -u builduser makepkg -s --noconfirm --skippgpcheck
 
       - name: Build kernel package with makepkg
         run: |
