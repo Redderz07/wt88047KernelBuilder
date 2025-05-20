@@ -46,7 +46,7 @@ jobs:
       - name: Build kernel package with makepkg (non-root)
         run: |
           cd $KERNEL_DIR
-          cp $GITHUB_WORKSPACE/kernel/PKGBUILD .
+          cp $GITHUB_WORKSPACE/PKGBUILD .
           sudo -u builduser makepkg -s --noconfirm --skippgpcheck
 
       - name: Build kernel package with makepkg
