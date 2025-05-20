@@ -6,58 +6,41 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: archlinux:latest
-    
+
+    container:
+      image: archlinux:base-devel
+
     steps:
-      - name: Checkout repository
+      - name: Setup environment
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm git sudo fakeroot bc bison flex openssl \
+            elfutils ccache python ncurses dtc xmlto \
+            gcc make cpio perl curl xz git
+
+      - name: Create user builder
+        run: |
+          useradd -m builder
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+          chown -R builder:builder /github
+        shell: bash
+
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Load environment variables from config.env
+      - name: Load environment variables
         run: |
           grep -v -E "^#|^\n" config.env | sed 's/ #.*//; s/#.*//' >> $GITHUB_ENV
 
-      - name: Update Arch Linux and install dependencies
-        run: |
-          pacman -Syu --noconfirm --needed base-devel git sudo bc bison flex openssl libelf \
-            xmlto kmod cpio perl xz git ccache dtc ncurses python fakeroot \
-            aarch64-linux-gnu-gcc aarch64-linux-gnu-binutils aarch64-linux-gnu-glibc
-
-      - name: Set toolchain path
-        run: echo "CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
-
-      - name: Clone Kernel Source
-        run: |
-          echo "HOME_DIR=$PWD" >> $GITHUB_ENV
-          set -e
-          git clone "$KERNEL_SOURCE" -b "$KERNEL_SOURCE_BRANCH" --depth=1 linux
-          cd linux
-          echo "KERNEL_DIR=$PWD" >> $GITHUB_ENV
-
-      - name: Set Kernel ARCH
-        run: |
-          echo "ARCH=$KERNEL_ARCH" >> $GITHUB_ENV
-
-      - name: Create non-root user for makepkg
-        run: |
-          useradd -m builduser
-          echo "builduser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-          chown -R builduser:builduser $GITHUB_WORKSPACE
-
-      - name: Build kernel package with makepkg (non-root)
-        run: |
-          cd $KERNEL_DIR
-          cp $GITHUB_WORKSPACE/kernel/PKGBUILD .
-          sudo -u builduser makepkg -s --noconfirm --skippgpcheck
-
       - name: Build kernel package with makepkg
         run: |
-          cd $KERNEL_DIR
-          makepkg -s --noconfirm --skippgpcheck
+          sudo -u builder bash -c '
+            cd $GITHUB_WORKSPACE/kernel-package
+            makepkg -s --noconfirm
+          '
 
-      - name: Upload kernel artifacts
+      - name: Upload kernel package
         uses: actions/upload-artifact@v4
         with:
-          name: msm8916-kernel-artifacts
-          path: |
-            ${{ env.KERNEL_DIR }}/${{ env.KERNEL_IMAGE_NAME }}
-            ${{ env.KERNEL_DIR }}/*.pkg.tar.zst
+          name: linux-msm8916-pkg
+          path: kernel-package/*.pkg.tar.zst
