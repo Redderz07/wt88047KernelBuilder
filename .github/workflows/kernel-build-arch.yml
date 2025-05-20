@@ -11,6 +11,9 @@ jobs:
       image: archlinux:base-devel
 
     steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+    
       - name: Setup environment
         run: |
           pacman -Syu --noconfirm
@@ -24,9 +27,6 @@ jobs:
           echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
           chown -R builder:builder $GITHUB_WORKSPACE
         shell: bash
-
-      - name: Checkout source
-        uses: actions/checkout@v4
 
       - name: Load environment variables
         run: |
