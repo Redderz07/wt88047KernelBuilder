@@ -1,5 +1,5 @@
 pkgbase=linux-msm8916
-pkgver=6.12.1
+pkgver=\$(make kernelversion)
 pkgrel=1
 arch=('aarch64')
 url="https://github.com/msm8916-mainline/linux"
@@ -27,7 +27,7 @@ build() {
   export CROSS_COMPILE=aarch64-linux-gnu-
   
   make $KERNEL_DEFCONFIG
-  make -j4
+  make -j\$(nproc)
 }
 
 package() {
