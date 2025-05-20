@@ -1,0 +1,50 @@
+pkgbase=linux-msm8916
+pkgver=\$(make kernelversion)
+pkgrel=1
+arch=('aarch64')
+url="https://github.com/msm8916-mainline/linux"
+license=('GPL2')
+makedepends=('bc' 'bison' 'flex' 'openssl' 'libelf' 'xmlto' 'kmod' 'cpio' 'perl' 'xz' \
+             'git' 'ccache' 'dtc' 'ncurses' 'python' 'fakeroot' \
+             'aarch64-linux-gnu-gcc' 'aarch64-linux-gnu-binutils' 'aarch64-linux-gnu-glibc')
+options=('!strip')
+source=("linux-\${pkgver}.tar.xz")
+sha256sums=('SKIP')
+
+prepare() {
+  cd linux-\${pkgver}
+  
+  # Apply patches if any
+  for patch in ../*.patch; do
+    [ -f "\$patch" ] && patch -p1 < "\$patch"
+  done
+}
+
+build() {
+  cd linux-\${pkgver}
+  
+  export ARCH=arm64
+  export CROSS_COMPILE=aarch64-linux-gnu-
+  
+  make $KERNEL_DEFCONFIG
+  make -j\$(nproc)
+}
+
+package() {
+  cd linux-\${pkgver}
+  
+  export ARCH=arm64
+  export CROSS_COMPILE=aarch64-linux-gnu-
+  
+  # Install modules
+  make INSTALL_MOD_PATH="\${pkgdir}" modules_install
+  
+  # Install kernel image
+  install -Dm644 arch/arm64/boot/Image "\${pkgdir}/boot/vmlinuz-msm8916"
+  
+  # Append DTB to kernel image
+  cat arch/arm64/boot/Image arch/arm64/boot/dts/qcom/msm8916-wingtech-wt88047.dtb > "\${pkgdir}/boot/kernel-dtb"
+  
+  # Install headers (optional)
+  make INSTALL_HDR_PATH="\${pkgdir}/usr" headers_install
+}
