@@ -22,7 +22,7 @@ jobs:
         run: |
           useradd -m builder
           echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-          chown -R builder:builder /github
+          chown -R builder:builder $GITHUB_WORKSPACE
         shell: bash
 
       - name: Checkout source
@@ -34,7 +34,7 @@ jobs:
 
       - name: Build kernel package with makepkg
         run: |
-          sudo -u builder bash -c '
+          sudo -u builder env HOME=/home/builder bash -c '
             cd $GITHUB_WORKSPACE/kernel-package
             makepkg -s --noconfirm
           '
