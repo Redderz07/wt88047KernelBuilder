@@ -1,5 +1,5 @@
 pkgbase=linux-msm8916
-pkgver=\$(make kernelversion)
+pkgver=$(make kernelversion)
 pkgrel=1
 arch=('aarch64')
 url="https://github.com/msm8916-mainline/linux"
