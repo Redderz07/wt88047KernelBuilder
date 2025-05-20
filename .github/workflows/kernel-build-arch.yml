@@ -23,6 +23,7 @@ jobs:
           useradd -m builder
           echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
           chown -R builder:builder .
+          chown -R builder:builder $BUILDDIR
         shell: bash
 
       - name: Checkout source
