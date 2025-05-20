@@ -35,7 +35,6 @@ jobs:
 
       - name: Build kernel package with makepkg
         run: |
-          sudo ls
           sudo -u builder bash -c "mkdir kernel && cd kernel && cp ../kernel-package/PKGBUILD . && makepkg -s --noconfirm"
 
       - name: Upload kernel package
