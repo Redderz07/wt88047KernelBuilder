@@ -11,6 +11,8 @@ makedepends=('bc' 'bison' 'flex' 'openssl' 'libelf' 'xmlto' 'kmod' 'cpio' 'perl'
 options=('!strip')
 
 build() {
+  cd linux
+
   export ARCH=arm64
   export CROSS_COMPILE=aarch64-linux-gnu-
   
@@ -19,6 +21,8 @@ build() {
 }
 
 package() {
+  cd linux
+  
   export ARCH=arm64
   export CROSS_COMPILE=aarch64-linux-gnu-
   
