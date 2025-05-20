@@ -27,7 +27,7 @@ build() {
   export CROSS_COMPILE=aarch64-linux-gnu-
   
   make $KERNEL_DEFCONFIG
-  make -j\$(nproc)
+  make -j $(nproc)
 }
 
 package() {
