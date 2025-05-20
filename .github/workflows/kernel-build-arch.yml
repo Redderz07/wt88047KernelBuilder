@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: archlinux/base:latest
+    container: archlinux:latest
     
     steps:
       - name: Checkout repository
