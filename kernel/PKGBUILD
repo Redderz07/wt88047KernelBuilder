@@ -11,17 +11,12 @@ makedepends=('bc' 'bison' 'flex' 'openssl' 'libelf' 'xmlto' 'kmod' 'cpio' 'perl'
 options=('!strip')
 
 prepare() {
-  cd linux
-  
-  # Apply patches if any
   for patch in ../*.patch; do
     [ -f "\$patch" ] && patch -p1 < "\$patch"
   done
 }
 
 build() {
-  cd linux-\${pkgver}
-  
   export ARCH=arm64
   export CROSS_COMPILE=aarch64-linux-gnu-
   
