@@ -10,12 +10,6 @@ makedepends=('bc' 'bison' 'flex' 'openssl' 'libelf' 'xmlto' 'kmod' 'cpio' 'perl'
              'aarch64-linux-gnu-gcc' 'aarch64-linux-gnu-binutils' 'aarch64-linux-gnu-glibc')
 options=('!strip')
 
-prepare() {
-  for patch in ../*.patch; do
-    [ -f "\$patch" ] && patch -p1 < "\$patch"
-  done
-}
-
 build() {
   export ARCH=arm64
   export CROSS_COMPILE=aarch64-linux-gnu-
