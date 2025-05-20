@@ -9,8 +9,6 @@ makedepends=('bc' 'bison' 'flex' 'openssl' 'libelf' 'xmlto' 'kmod' 'cpio' 'perl'
              'git' 'ccache' 'dtc' 'ncurses' 'python' 'fakeroot' \
              'aarch64-linux-gnu-gcc' 'aarch64-linux-gnu-binutils' 'aarch64-linux-gnu-glibc')
 options=('!strip')
-source=("linux-\${pkgver}.tar.xz")
-sha256sums=('SKIP')
 
 prepare() {
   cd linux-\${pkgver}
