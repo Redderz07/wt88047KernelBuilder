@@ -1,0 +1,22 @@
+pkgbase=linux-msm8916
+pkgver=6.12.1
+pkgrel=1
+arch=('aarch64')
+url="https://github.com/msm8916-mainline/linux"
+license=('GPL2')
+makedepends=('bc' 'git' 'python' 'make' 'gcc' 'flex' 'bison' 'dtc' 'openssl' 'elfutils' 'pahole')
+source=("git+${url}#branch=msm8916/${pkgver}")
+md5sums=('SKIP')
+
+build() {
+  cd "$srcdir/linux"
+  make ${KERNEL_DEFCONFIG:-msm8916_defconfig}
+  make -j$(nproc)
+}
+
+package() {
+  cd "$srcdir/linux"
+  install -Dm644 arch/arm64/boot/Image.gz "$pkgdir/boot/Image.gz"
+  install -Dm644 arch/arm64/boot/dts/qcom/msm8916-wingtech-wt88047.dtb "$pkgdir/boot/msm8916-wingtech-wt88047.dtb"
+  cat arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/msm8916-wingtech-wt88047.dtb > "$pkgdir/boot/kernel-dtb"
+}
