@@ -11,7 +11,7 @@ makedepends=('bc' 'bison' 'flex' 'openssl' 'libelf' 'xmlto' 'kmod' 'cpio' 'perl'
 options=('!strip')
 
 prepare() {
-  cd linux-\${pkgver}
+  cd linux
   
   # Apply patches if any
   for patch in ../*.patch; do
