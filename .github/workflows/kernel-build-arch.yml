@@ -16,7 +16,7 @@ jobs:
           pacman -Syu --noconfirm
           pacman -S --noconfirm git sudo fakeroot bc bison flex openssl \
             elfutils ccache python ncurses dtc xmlto \
-            gcc make cpio perl curl xz
+            gcc make cpio perl curl xz aarch64-linux-gnu-gcc
 
       - name: Create builder user
         run: |
