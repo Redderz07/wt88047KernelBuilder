@@ -13,17 +13,6 @@ md5sums=('SKIP')
 export CROSS_COMPILE=aarch64-linux-gnu-
 export ARCH=arm64
 
-prepare() {
-    cd "$srcdir/linux"
-
-    scripts/setlocalversion --save-scmversion
-    echo "-tpc-$pkgrel" > localversion.10
-
-    kernver="$(make -s kernelrelease)"
-    echo "$kernver" > version
-    echo "Prepared version $kernver"
-}
-
 build() {
   cd "$srcdir/linux"
   make ${KERNEL_DEFCONFIG:-msm8916_defconfig}
