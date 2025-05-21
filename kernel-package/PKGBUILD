@@ -9,6 +9,9 @@ makedepends=('bc' 'git' 'python' 'make' 'gcc' 'flex' 'bison' 'dtc' 'openssl' 'el
 source=("git+${url}#branch=msm8916/${pkgver}")
 md5sums=('SKIP')
 
+export CROSS_COMPILE=aarch64-linux-gnu-
+export ARCH=arm64
+
 build() {
   cd "$srcdir/linux"
   make ${KERNEL_DEFCONFIG:-msm8916_defconfig}
