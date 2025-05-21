@@ -38,7 +38,7 @@ _package() {
     provides=(VIRTUALBOX-GUEST-MODULES WIREGUARD-MODULE KSMBD-MODULE)
     replaces=(virtualbox-guest-modules-arch wireguard-arch)
 
-    cd $_srcname
+    cd "$srcdir/linux"
     local kernver="$(< version)"
     local modulesdir="$pkgdir/usr/lib/modules/$kernver"
 
@@ -62,7 +62,7 @@ _package-headers() {
     pkgdesc="Headers and scripts for building modules for the $pkgdesc kernel"
     depends=(pahole)
 
-    cd $_srcname
+    cd "$srcdir/linux"
     local kernver="$(< version)"
     local builddir="$pkgdir/usr/lib/modules/$kernver/build"
 
