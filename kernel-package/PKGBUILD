@@ -12,12 +12,7 @@ makedepends=(
   cpio
   gettext
   libelf
-  pahole
   perl
-  python
-  rust
-  rust-bindgen
-  rust-src
   tar
   xz
   aarch64-linux-gnu-gcc
