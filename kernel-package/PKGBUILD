@@ -29,7 +29,7 @@ options=(
   !debug
   !strip
 )
-_srcname=linux-${pkgver%.*}
+_srcname=$PWD/linux-${pkgver%.*}
 _srctag=v${pkgver%.*}-${pkgver##*.}
 
 
